@@ -152,52 +152,33 @@ body {
 
 .blob {
   position: absolute;
+  top: 0;
+  left: 0;
   border-radius: 50%;
   filter: blur(72px);
-  animation: blobFloat 18s ease-in-out infinite;
   transition: background 0.55s ease;
+  will-change: transform;
 }
 
 .blob-1 {
   width: 500px;
   height: 500px;
   background: var(--blob-1);
-  top: -140px;
-  left: -120px;
-  animation-delay: 0s;
 }
 
 .blob-2 {
   width: 380px;
   height: 380px;
   background: var(--blob-2);
-  bottom: -100px;
-  right: -100px;
-  animation-delay: -7s;
 }
 
 .blob-3 {
   width: 300px;
   height: 300px;
   background: var(--blob-3);
-  top: 50%;
-  left: 50%;
-  animation-name: blobFloat3;
-  animation-delay: -13s;
 }
 
-@keyframes blobFloat {
-  0%, 100% { transform: translate(0, 0)       scale(1);    }
-  25%       { transform: translate(30px, -40px) scale(1.06); }
-  50%       { transform: translate(-20px, 30px) scale(0.94); }
-  75%       { transform: translate(40px, 20px)  scale(1.02); }
-}
 
-@keyframes blobFloat3 {
-  0%, 100% { transform: translate(-50%, -50%)                    scale(1);    }
-  33%       { transform: translate(calc(-50% + 50px), calc(-50% - 30px)) scale(1.1); }
-  66%       { transform: translate(calc(-50% - 40px), calc(-50% + 40px)) scale(0.9); }
-}
 
 /* ================================================================
    THEME TOGGLE BUTTON
@@ -488,6 +469,6 @@ body {
    REDUCED MOTION
    ================================================================ */
 @media (prefers-reduced-motion: reduce) {
-  .bg-dark, .bg-light, .blob { animation: none; }
+  .bg-dark, .bg-light { animation: none; }
   .link-btn, .theme-toggle, .icon, .link-arrow, .toast { transition: none; }
 }
