@@ -13,40 +13,40 @@
 :root {
   color-scheme: dark;
 
-  /* Accent */
-  --accent-1: #8b5cf6;
-  --accent-2: #3b82f6;
+  /* Accent — oklch gives P3-wide vivid values sRGB can't reach */
+  --accent-1: oklch(0.585 0.228 293);
+  --accent-2: oklch(0.602 0.202 264);
 
   /* Card */
-  --card-bg:       rgba(255, 255, 255, 0.05);
-  --card-bg-solid: #13132a;
-  --card-border:   rgba(255, 255, 255, 0.09);
-  --card-shadow:   0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --card-bg:       oklch(1 0 0 / 0.05);
+  --card-bg-solid: oklch(0.110 0.038 272);
+  --card-border:   oklch(1 0 0 / 0.09);
+  --card-shadow:   0 30px 60px rgb(0 0 0 / 0.5), 0 0 0 1px oklch(1 0 0 / 0.04);
 
   /* Text */
-  --text-primary:   #f0f0ff;
-  --text-secondary: rgba(230, 230, 255, 0.6);
-  --text-tertiary:  rgba(230, 230, 255, 0.35);
+  --text-primary:   oklch(0.949 0.020 282);
+  --text-secondary: oklch(0.925 0.020 282 / 0.6);
+  --text-tertiary:  oklch(0.925 0.020 282 / 0.35);
 
   /* Buttons */
-  --btn-bg:           rgba(255, 255, 255, 0.06);
-  --btn-border:       rgba(255, 255, 255, 0.1);
-  --btn-hover-bg:     rgba(139, 92, 246, 0.12);
-  --btn-hover-border: rgba(139, 92, 246, 0.4);
-  --btn-hover-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
-  --btn-active-bg:    rgba(139, 92, 246, 0.18);
+  --btn-bg:           oklch(1 0 0 / 0.06);
+  --btn-border:       oklch(1 0 0 / 0.10);
+  --btn-hover-bg:     oklch(0.585 0.228 293 / 0.12);
+  --btn-hover-border: oklch(0.585 0.228 293 / 0.40);
+  --btn-hover-shadow: 0 8px 24px oklch(0.585 0.228 293 / 0.20);
+  --btn-active-bg:    oklch(0.585 0.228 293 / 0.18);
 
   /* Toggle */
-  --toggle-bg:     rgba(255, 255, 255, 0.08);
-  --toggle-border: rgba(255, 255, 255, 0.12);
+  --toggle-bg:     oklch(1 0 0 / 0.08);
+  --toggle-border: oklch(1 0 0 / 0.12);
 
-  /* Blobs */
-  --blob-1: rgba(120, 80,  255, 0.35);
-  --blob-2: rgba(56,  112, 255, 0.25);
-  --blob-3: rgba(80,  200, 255, 0.15);
+  /* Blobs — P3 chroma pushes these beyond sRGB gamut for richer glow */
+  --blob-1: oklch(0.52 0.27 291 / 0.35);
+  --blob-2: oklch(0.54 0.22 265 / 0.25);
+  --blob-3: oklch(0.78 0.13 217 / 0.15);
 
   /* Misc */
-  --discord-handle: rgba(230, 230, 255, 0.45);
+  --discord-handle: oklch(0.925 0.020 282 / 0.45);
 }
 
 /* ================================================================
@@ -55,33 +55,33 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --accent-1: #f97316;
-  --accent-2: #eab308;
+  --accent-1: oklch(0.703 0.193 42);
+  --accent-2: oklch(0.789 0.172 87);
 
-  --card-bg:       rgba(255, 255, 255, 0.68);
-  --card-bg-solid: #fff8f0;
-  --card-border:   rgba(255, 255, 255, 0.88);
-  --card-shadow:   0 30px 60px rgba(249, 115, 22, 0.15), 0 0 0 1px rgba(249, 115, 22, 0.08);
+  --card-bg:       oklch(1 0 0 / 0.68);
+  --card-bg-solid: oklch(0.977 0.018 83);
+  --card-border:   oklch(1 0 0 / 0.88);
+  --card-shadow:   0 30px 60px oklch(0.703 0.193 42 / 0.15), 0 0 0 1px oklch(0.703 0.193 42 / 0.08);
 
-  --text-primary:   #1c1917;
-  --text-secondary: rgba(28, 25, 23, 0.6);
-  --text-tertiary:  rgba(28, 25, 23, 0.38);
+  --text-primary:   oklch(0.183 0.010 55);
+  --text-secondary: oklch(0.183 0.010 55 / 0.6);
+  --text-tertiary:  oklch(0.183 0.010 55 / 0.38);
 
-  --btn-bg:           rgba(255, 255, 255, 0.6);
-  --btn-border:       rgba(249, 115, 22, 0.18);
-  --btn-hover-bg:     rgba(249, 115, 22, 0.08);
-  --btn-hover-border: rgba(249, 115, 22, 0.45);
-  --btn-hover-shadow: 0 8px 24px rgba(249, 115, 22, 0.2);
-  --btn-active-bg:    rgba(249, 115, 22, 0.14);
+  --btn-bg:           oklch(1 0 0 / 0.60);
+  --btn-border:       oklch(0.703 0.193 42 / 0.18);
+  --btn-hover-bg:     oklch(0.703 0.193 42 / 0.08);
+  --btn-hover-border: oklch(0.703 0.193 42 / 0.45);
+  --btn-hover-shadow: 0 8px 24px oklch(0.703 0.193 42 / 0.20);
+  --btn-active-bg:    oklch(0.703 0.193 42 / 0.14);
 
-  --toggle-bg:     rgba(255, 255, 255, 0.7);
-  --toggle-border: rgba(249, 115, 22, 0.25);
+  --toggle-bg:     oklch(1 0 0 / 0.70);
+  --toggle-border: oklch(0.703 0.193 42 / 0.25);
 
-  --blob-1: rgba(249, 115, 22,  0.22);
-  --blob-2: rgba(234, 179, 8,   0.18);
-  --blob-3: rgba(251, 191, 36,  0.16);
+  --blob-1: oklch(0.703 0.193 42  / 0.22);
+  --blob-2: oklch(0.789 0.172 87  / 0.18);
+  --blob-3: oklch(0.820 0.170 86  / 0.16);
 
-  --discord-handle: rgba(28, 25, 23, 0.4);
+  --discord-handle: oklch(0.183 0.010 55 / 0.40);
 }
 
 /* ================================================================
@@ -97,7 +97,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 2rem 1rem;
-  background: #0d0d2b; /* fallback */
+  background: oklch(0.09 0.042 264); /* HDR fallback */
   color: var(--text-primary);
   position: relative;
   overflow-x: hidden;
@@ -112,7 +112,11 @@ body {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(-45deg, #0d0d2b, #1a0a3e, #0a1628, #111830);
+  background: linear-gradient(in oklch -45deg,
+    oklch(0.09 0.042 264),
+    oklch(0.12 0.090 295),
+    oklch(0.10 0.040 245),
+    oklch(0.11 0.046 257));
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
 }
@@ -124,7 +128,11 @@ body {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ffd89b, #ffc3a0);
+  background: linear-gradient(in oklch -45deg,
+    oklch(0.943 0.052 78),
+    oklch(0.816 0.083 46),
+    oklch(0.897 0.094 82),
+    oklch(0.856 0.086 56));
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
   opacity: 0;
@@ -263,7 +271,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  background: linear-gradient(in oklch 135deg, var(--accent-1), var(--accent-2));
   padding: 3px;
   margin-bottom: 1.25rem;
   flex-shrink: 0;
@@ -287,7 +295,7 @@ body {
 .avatar-initials {
   font-size: 2.25rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  background: linear-gradient(in oklch 135deg, var(--accent-1), var(--accent-2));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
