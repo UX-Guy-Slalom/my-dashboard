@@ -1,0 +1,493 @@
+/* ================================================================
+   RESET
+   ================================================================ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ================================================================
+   THEME TOKENS — DARK (default)
+   ================================================================ */
+:root {
+  color-scheme: dark;
+
+  /* Accent */
+  --accent-1: #8b5cf6;
+  --accent-2: #3b82f6;
+
+  /* Card */
+  --card-bg:       rgba(255, 255, 255, 0.05);
+  --card-bg-solid: #13132a;
+  --card-border:   rgba(255, 255, 255, 0.09);
+  --card-shadow:   0 30px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  /* Text */
+  --text-primary:   #f0f0ff;
+  --text-secondary: rgba(230, 230, 255, 0.6);
+  --text-tertiary:  rgba(230, 230, 255, 0.35);
+
+  /* Buttons */
+  --btn-bg:           rgba(255, 255, 255, 0.06);
+  --btn-border:       rgba(255, 255, 255, 0.1);
+  --btn-hover-bg:     rgba(139, 92, 246, 0.12);
+  --btn-hover-border: rgba(139, 92, 246, 0.4);
+  --btn-hover-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+  --btn-active-bg:    rgba(139, 92, 246, 0.18);
+
+  /* Toggle */
+  --toggle-bg:     rgba(255, 255, 255, 0.08);
+  --toggle-border: rgba(255, 255, 255, 0.12);
+
+  /* Blobs */
+  --blob-1: rgba(120, 80,  255, 0.35);
+  --blob-2: rgba(56,  112, 255, 0.25);
+  --blob-3: rgba(80,  200, 255, 0.15);
+
+  /* Misc */
+  --discord-handle: rgba(230, 230, 255, 0.45);
+}
+
+/* ================================================================
+   THEME TOKENS — LIGHT
+   ================================================================ */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --accent-1: #f97316;
+  --accent-2: #eab308;
+
+  --card-bg:       rgba(255, 255, 255, 0.68);
+  --card-bg-solid: #fff8f0;
+  --card-border:   rgba(255, 255, 255, 0.88);
+  --card-shadow:   0 30px 60px rgba(249, 115, 22, 0.15), 0 0 0 1px rgba(249, 115, 22, 0.08);
+
+  --text-primary:   #1c1917;
+  --text-secondary: rgba(28, 25, 23, 0.6);
+  --text-tertiary:  rgba(28, 25, 23, 0.38);
+
+  --btn-bg:           rgba(255, 255, 255, 0.6);
+  --btn-border:       rgba(249, 115, 22, 0.18);
+  --btn-hover-bg:     rgba(249, 115, 22, 0.08);
+  --btn-hover-border: rgba(249, 115, 22, 0.45);
+  --btn-hover-shadow: 0 8px 24px rgba(249, 115, 22, 0.2);
+  --btn-active-bg:    rgba(249, 115, 22, 0.14);
+
+  --toggle-bg:     rgba(255, 255, 255, 0.7);
+  --toggle-border: rgba(249, 115, 22, 0.25);
+
+  --blob-1: rgba(249, 115, 22,  0.22);
+  --blob-2: rgba(234, 179, 8,   0.18);
+  --blob-3: rgba(251, 191, 36,  0.16);
+
+  --discord-handle: rgba(28, 25, 23, 0.4);
+}
+
+/* ================================================================
+   BASE
+   ================================================================ */
+html { font-size: 16px; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+  background: #0d0d2b; /* fallback */
+  color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ================================================================
+   ANIMATED BACKGROUND — DARK LAYER (always present)
+   ================================================================ */
+.bg-dark {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(-45deg, #0d0d2b, #1a0a3e, #0a1628, #111830);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+}
+
+/* ================================================================
+   ANIMATED BACKGROUND — LIGHT LAYER (fades in over dark)
+   ================================================================ */
+.bg-light {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(-45deg, #ffecd2, #fcb69f, #ffd89b, #ffc3a0);
+  background-size: 400% 400%;
+  animation: gradientShift 20s ease infinite;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+[data-theme="light"] .bg-light { opacity: 1; }
+
+@keyframes gradientShift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+/* ================================================================
+   FLOATING BLOBS
+   ================================================================ */
+.bg-blobs {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(72px);
+  animation: blobFloat 18s ease-in-out infinite;
+  transition: background 0.55s ease;
+}
+
+.blob-1 {
+  width: 500px;
+  height: 500px;
+  background: var(--blob-1);
+  top: -140px;
+  left: -120px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 380px;
+  height: 380px;
+  background: var(--blob-2);
+  bottom: -100px;
+  right: -100px;
+  animation-delay: -7s;
+}
+
+.blob-3 {
+  width: 300px;
+  height: 300px;
+  background: var(--blob-3);
+  top: 50%;
+  left: 50%;
+  animation-name: blobFloat3;
+  animation-delay: -13s;
+}
+
+@keyframes blobFloat {
+  0%, 100% { transform: translate(0, 0)       scale(1);    }
+  25%       { transform: translate(30px, -40px) scale(1.06); }
+  50%       { transform: translate(-20px, 30px) scale(0.94); }
+  75%       { transform: translate(40px, 20px)  scale(1.02); }
+}
+
+@keyframes blobFloat3 {
+  0%, 100% { transform: translate(-50%, -50%)                    scale(1);    }
+  33%       { transform: translate(calc(-50% + 50px), calc(-50% - 30px)) scale(1.1); }
+  66%       { transform: translate(calc(-50% - 40px), calc(-50% + 40px)) scale(0.9); }
+}
+
+/* ================================================================
+   THEME TOGGLE BUTTON
+   ================================================================ */
+.theme-toggle {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  transition: transform 0.3s ease, box-shadow 0.3s ease,
+              background 0.55s ease, border-color 0.55s ease;
+}
+
+.theme-toggle:hover  { transform: scale(1.12); box-shadow: 0 4px 16px rgba(0,0,0,0.25); }
+.theme-toggle:active { transform: scale(0.94); }
+
+/* Sun / moon icons */
+.icon {
+  width: 18px;
+  height: 18px;
+  position: absolute;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Dark mode: show sun, hide moon */
+[data-theme="dark"]  .icon-sun  { opacity: 1; transform: rotate(0deg)   scale(1);   }
+[data-theme="dark"]  .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+
+/* Light mode: show moon, hide sun */
+[data-theme="light"] .icon-sun  { opacity: 0; transform: rotate(90deg)  scale(0.5); }
+[data-theme="light"] .icon-moon { opacity: 1; transform: rotate(0deg)   scale(1);   }
+
+/* ================================================================
+   LAYOUT
+   ================================================================ */
+.container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 480px;
+}
+
+/* ================================================================
+   CARD
+   ================================================================ */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 24px;
+  padding: 2.5rem 2rem 2rem;
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: background 0.55s ease, border-color 0.55s ease, box-shadow 0.55s ease;
+}
+
+/* ================================================================
+   PROFILE
+   ================================================================ */
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+/* Avatar ring */
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  padding: 3px;
+  margin-bottom: 1.25rem;
+  flex-shrink: 0;
+  transition: background 0.55s ease;
+}
+
+/* Avatar inner circle */
+.avatar-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--card-bg-solid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: background 0.55s ease;
+}
+
+/* Initials placeholder */
+.avatar-initials {
+  font-size: 2.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+  line-height: 1;
+  user-select: none;
+}
+
+/* If a real photo is placed inside avatar-inner */
+.avatar-inner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.name {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+  transition: color 0.55s ease;
+}
+
+.bio {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 340px;
+  transition: color 0.55s ease;
+}
+
+/* ================================================================
+   LINK BUTTONS
+   ================================================================ */
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.75rem;
+}
+
+.link-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  width: 100%;
+  padding: 0.9rem 1.125rem;
+  border-radius: 14px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 0.22s ease, border-color 0.22s ease,
+              box-shadow 0.22s ease, transform 0.22s ease,
+              color 0.55s ease;
+  will-change: transform;
+}
+
+.link-btn:hover {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+  box-shadow: var(--btn-hover-shadow);
+  transform: translateY(-2px);
+}
+
+.link-btn:active {
+  background: var(--btn-active-bg);
+  transform: translateY(0) scale(0.99);
+  box-shadow: none;
+}
+
+/* Icon */
+.link-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.22s ease;
+}
+.link-icon svg { width: 20px; height: 20px; }
+.link-btn:hover .link-icon { opacity: 1; }
+
+/* Label */
+.link-text { flex: 1; }
+
+/* Discord handle badge */
+.discord-handle {
+  font-size: 0.8125rem;
+  color: var(--discord-handle);
+  font-weight: 400;
+  transition: color 0.55s ease;
+}
+
+/* Arrow */
+.link-arrow {
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0.3;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.link-arrow svg { width: 14px; height: 14px; }
+.link-btn:hover .link-arrow { opacity: 0.8; transform: translateX(3px); }
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+.footer { text-align: center; }
+
+.footer p {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  transition: color 0.55s ease;
+}
+
+/* ================================================================
+   TOAST
+   ================================================================ */
+.toast {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(140%);
+  background: var(--text-primary);
+  color: var(--card-bg-solid);
+  padding: 0.625rem 1.375rem;
+  border-radius: 100px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              opacity 0.3s ease,
+              background 0.55s ease, color 0.55s ease;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ================================================================
+   RESPONSIVE
+   ================================================================ */
+@media (max-width: 520px) {
+  body {
+    align-items: flex-start;
+    padding-top: 3.5rem;
+  }
+  .card {
+    padding: 2rem 1.25rem 1.75rem;
+    border-radius: 20px;
+  }
+  .name { font-size: 1.625rem; }
+}
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .bg-dark, .bg-light, .blob { animation: none; }
+  .link-btn, .theme-toggle, .icon, .link-arrow, .toast { transition: none; }
+}
