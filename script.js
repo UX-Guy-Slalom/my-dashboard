@@ -73,11 +73,12 @@ function showToast(message) {
     r:      cfg.r,
     maxSpd: cfg.spd * 1.55,
     minSpd: cfg.spd * 0.40,
-    cx: 0, cy: 0,   // centre position (px)
-    vx: 0, vy: 0,   // velocity (px/s)
-    sx: 1, sy: 1,   // current applied scale
-    tsx: 1, tsy: 1, // target scale
-    ang: 0,         // stretch-axis angle (radians)
+    cx: 0, cy: 0,       // centre position (px)
+    vx: 0, vy: 0,       // velocity (px/s)
+    sx: 1, sy: 1,       // current applied scale
+    tsx: 1, tsy: 1,     // target scale
+    ang: 0,             // stretch-axis angle (radians)
+    brightness: 1,      // luminance multiplier (1 = normal; flashes on impact)
   }));
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -103,6 +104,7 @@ function showToast(message) {
     b.tsy = 1 + SQUASH_HIT * 0.7;
     b.sx  = b.sx  * 0.55 + b.tsx * 0.45;
     b.sy  = b.sy  * 0.55 + b.tsy * 0.45;
+    b.brightness = 2.2;  // flash on impact
   }
 
   // ── Collision resolvers ─────────────────────────────────────────────────────
@@ -180,6 +182,12 @@ function showToast(message) {
     const dk = 1 - Math.exp(-2.2 * dt);
     b.tsx += (1 - b.tsx) * dk;
     b.tsy += (1 - b.tsy) * dk;
+    // Slowly decay brightness flash back to normal (~1.5–2 s)
+    if (b.brightness > 1.001) {
+      b.brightness += (1 - b.brightness) * (1 - Math.exp(-1.2 * dt));
+    } else {
+      b.brightness = 1;
+    }
   }
 
   // rotate(ang) scale(sx,sy) rotate(-ang) scales along the ang axis.
@@ -193,6 +201,7 @@ function showToast(message) {
       `rotate(${b.ang.toFixed(3)}rad) ` +
       `scale(${b.sx.toFixed(4)},${b.sy.toFixed(4)}) ` +
       `rotate(${(-b.ang).toFixed(3)}rad)`;
+    b.el.style.filter = `blur(72px) brightness(${b.brightness.toFixed(3)})`;
   }
 
   // ── Init ───────────────────────────────────────────────────────────────────
@@ -211,6 +220,7 @@ function showToast(message) {
       b.vx = Math.cos(a) * CFG[i].spd;
       b.vy = Math.sin(a) * CFG[i].spd;
       b.sx = b.sy = b.tsx = b.tsy = 1;
+      b.brightness = 1;
       b.ang = a;
       applyTransform(b);
     });
