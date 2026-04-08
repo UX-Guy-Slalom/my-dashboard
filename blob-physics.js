@@ -63,7 +63,7 @@
     // ── Visual blur ────────────────────────────────────────────────────────
     // Applied via JS filter so it correctly combines with brightness.
     // Should match the blur() value in your CSS .blob rule.
-    blurPx:          72 ,     // px - default 72px
+    blurPx:          72,     // px - default 72px
 
     // ── Pointer / touch interaction ─────────────────────────────────────────
     pointerEnabled:       true,
