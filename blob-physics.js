@@ -35,8 +35,8 @@
   const PHYSICS = {
 
     // ── Speed limits ────────────────────────────────────────────────────────
-    speedMinFactor:  10.00,   // minimum speed = blob.speed × factor - default 0.40
-    speedMaxFactor:  15.00,   // maximum speed = blob.speed × factor - default 1.55
+    speedMinFactor:  0.40,   // minimum speed = blob.speed × factor - default 0.40
+    speedMaxFactor:  1.55,   // maximum speed = blob.speed × factor - default 1.55
 
     // ── Squash & stretch ────────────────────────────────────────────────────
     stretchMax:      0.08,   // max elongation along velocity axis (0.08 = 8%)
@@ -63,7 +63,7 @@
     // ── Visual blur ────────────────────────────────────────────────────────
     // Applied via JS filter so it correctly combines with brightness.
     // Should match the blur() value in your CSS .blob rule.
-    blurPx:          5 ,     // px
+    blurPx:          72 ,     // px - default 72px
 
     // ── Pointer / touch interaction ─────────────────────────────────────────
     pointerEnabled:       true,

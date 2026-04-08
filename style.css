@@ -113,10 +113,10 @@ body {
   inset: 0;
   z-index: 0;
   background: linear-gradient(in oklch -45deg,
-    oklch(0.09 0.142 264),
-    oklch(0.12 0.190 295),
-    oklch(0.10 0.140 245),
-    oklch(0.11 0.246 257));
+    oklch(0.09 0.092 264),
+    oklch(0.12 0.100 295),
+    oklch(0.10 0.070 245),
+    oklch(0.11 0.126 257));
   background-size: 400% 400%;
   animation: gradientShift 20s ease infinite;
 }
@@ -130,7 +130,7 @@ body {
   z-index: 0;
   background: linear-gradient(in oklch -45deg,
     oklch(0.943 0.052 78),
-    oklch(0.816 0.183 46),
+    oklch(0.816 0.143 46),
     oklch(0.897 0.094 82),
     oklch(0.856 0.086 56));
   background-size: 400% 400%;
