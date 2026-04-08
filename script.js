@@ -61,11 +61,16 @@ function showToast(message) {
     { sel: '.blob-3', vis: 300, r: 60, spd: 18 },
   ];
 
-  const STRETCH_MAX = 0.08;  // max motion-stretch  (8%)
-  const SQUASH_HIT  = 0.15;  // impact squash magnitude (15%)
+  const STRETCH_MAX    = 0.08;  // max motion-stretch  (8%)
+  const SQUASH_HIT     = 0.15;  // impact squash magnitude (15%)
+  const POINTER_RADIUS = 190;   // soft-repulsion zone radius (px)
+  const POINTER_FORCE  = 900;   // repulsion acceleration (px/s²) at closest point
+  const POINTER_R      = 22;    // treat the pointer itself as a circle of this radius (px)
 
   // ── State ───────────────────────────────────────────────────────────────────
   let W = 0, H = 0, cardRect = null, lastTs = null;
+
+  const pointer = { x: -9999, y: -9999, active: false };
 
   const blobs = CFG.map(cfg => ({
     el:     document.querySelector(cfg.sel),
@@ -108,6 +113,35 @@ function showToast(message) {
   }
 
   // ── Collision resolvers ─────────────────────────────────────────────────────
+
+  function pointerRepel(b, dt) {
+    if (!pointer.active) return;
+    const dx = b.cx - pointer.x;
+    const dy = b.cy - pointer.y;
+    const dist = Math.hypot(dx, dy) || 0.01;
+    const minD = b.r + POINTER_R;
+
+    if (dist < minD) {
+      // Hard contact — push blob out and reflect velocity, same as wall hit
+      const nx = dx / dist, ny = dy / dist;
+      b.cx = pointer.x + nx * minD;
+      b.cy = pointer.y + ny * minD;
+      const dot = b.vx * nx + b.vy * ny;
+      if (dot < 0) {
+        b.vx -= 2 * dot * nx;
+        b.vy -= 2 * dot * ny;
+        squashHit(b, nx, ny);
+      }
+      enforceSpeed(b);
+    } else if (dist < POINTER_RADIUS) {
+      // Soft repulsion — quadratic falloff
+      const t  = 1 - dist / POINTER_RADIUS;
+      const f  = t * t * POINTER_FORCE * dt;
+      b.vx += (dx / dist) * f;
+      b.vy += (dy / dist) * f;
+      enforceSpeed(b);
+    }
+  }
 
   function wallBounce(b) {
     const r = b.r;
@@ -236,6 +270,9 @@ function showToast(message) {
     // Integrate positions
     blobs.forEach(b => { b.cx += b.vx * dt; b.cy += b.vy * dt; });
 
+    // Pointer repulsion
+    blobs.forEach(b => pointerRepel(b, dt));
+
     // Blob–blob collisions (3 blobs → 3 pairs, enumerated explicitly)
     blobBounce(blobs[0], blobs[1]);
     blobBounce(blobs[0], blobs[2]);
@@ -249,6 +286,19 @@ function showToast(message) {
 
     requestAnimationFrame(tick);
   }
+
+  // ── Pointer tracking ───────────────────────────────────────────────────────
+  function onPointerMove(e) {
+    pointer.active = true;
+    const src = e.touches ? e.touches[0] : e;
+    pointer.x = src.clientX;
+    pointer.y = src.clientY;
+  }
+  window.addEventListener('mousemove',  onPointerMove);
+  window.addEventListener('touchmove',  onPointerMove, { passive: true });
+  window.addEventListener('touchstart', onPointerMove, { passive: true });
+  window.addEventListener('mouseleave', () => { pointer.active = false; });
+  window.addEventListener('touchend',   () => { pointer.active = false; });
 
   // ── Resize ─────────────────────────────────────────────────────────────────
   let resizeTimer;
