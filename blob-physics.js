@@ -35,8 +35,8 @@
   const PHYSICS = {
 
     // ── Speed limits ────────────────────────────────────────────────────────
-    speedMinFactor:  0.40,   // minimum speed = blob.speed × factor
-    speedMaxFactor:  1.55,   // maximum speed = blob.speed × factor
+    speedMinFactor:  10.00,   // minimum speed = blob.speed × factor - default 0.40
+    speedMaxFactor:  15.00,   // maximum speed = blob.speed × factor - default 1.55
 
     // ── Squash & stretch ────────────────────────────────────────────────────
     stretchMax:      0.08,   // max elongation along velocity axis (0.08 = 8%)
@@ -55,15 +55,15 @@
     scaleDecaySpeed: 2.2,
 
     // ── Brightness flash on impact ──────────────────────────────────────────
-    flashPeak:       2.2,    // brightness() multiplier at moment of impact
+    flashPeak:       3,    // brightness() multiplier at moment of impact
     // How fast brightness fades back to 1.0 after a flash.
     // Lower = longer fade. ~1.2 ≈ 1.5–2 s fade.
-    flashDecaySpeed: 1.2,
+    flashDecaySpeed: 1.0,
 
     // ── Visual blur ────────────────────────────────────────────────────────
     // Applied via JS filter so it correctly combines with brightness.
     // Should match the blur() value in your CSS .blob rule.
-    blurPx:          72,     // px
+    blurPx:          5 ,     // px
 
     // ── Pointer / touch interaction ─────────────────────────────────────────
     pointerEnabled:       true,
@@ -90,7 +90,7 @@
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   // ── Internal state ─────────────────────────────────────────────────────────
-  let W = 0, H = 0, obstacleRect = null, lastTs = null;
+  let W = 0, H = 0, obstacleRect = null, lastTs = null, started = false;
 
   const pointer = { x: -9999, y: -9999, active: false };
 
@@ -108,12 +108,13 @@
       minSpd: cfg.speed * PHYSICS.speedMinFactor,
       maxSpd: cfg.speed * PHYSICS.speedMaxFactor,
       nomSpd: cfg.speed,
-      cx: 0, cy: 0,       // centre position (px)
-      vx: 0, vy: 0,       // velocity (px/s)
-      sx: 1, sy: 1,       // current applied scale
-      tsx: 1, tsy: 1,     // target scale
-      ang: 0,             // stretch-axis angle (radians)
-      brightness: 1,      // luminance multiplier — flashes on impact
+      cx: 0, cy: 0,         // centre position (px)
+      vx: 0, vy: 0,         // velocity (px/s)
+      sx: 1, sy: 1,         // current applied scale
+      tsx: 1, tsy: 1,       // target scale
+      ang: 0,               // stretch-axis angle (radians)
+      brightness: 1,        // luminance multiplier — flashes on impact
+      hitRecovery: false,   // true while recovering from a squash impact
     };
   }).filter(Boolean);  // drop any null entries (missing elements)
 
@@ -123,10 +124,11 @@
     return Math.random() * Math.PI * 2;
   }
 
-  /** Clamps blob speed to [minSpd, maxSpd]; assigns a random direction if stationary. */
+  /** Clamps blob speed to [minSpd, maxSpd]; assigns a random direction if stationary or NaN. */
   function enforceSpeed(b) {
     const s = Math.hypot(b.vx, b.vy);
-    if (s === 0) {
+    if (!isFinite(s) || s === 0) {
+      // Covers zero, NaN, and Infinity — all get a fresh random direction
       const a = randAngle();
       b.vx = Math.cos(a) * b.minSpd;
       b.vy = Math.sin(a) * b.minSpd;
@@ -149,6 +151,7 @@
     b.sx = b.sx * (1 - PHYSICS.squashSnap) + b.tsx * PHYSICS.squashSnap;
     b.sy = b.sy * (1 - PHYSICS.squashSnap) + b.tsy * PHYSICS.squashSnap;
     b.brightness = PHYSICS.flashPeak;
+    b.hitRecovery = true;   // enter recovery mode — suppress motion stretch until settled
   }
 
   // ── Collision resolvers ────────────────────────────────────────────────────
@@ -169,16 +172,33 @@
     if (!obstacleRect) return;
     const { left, right, top, bottom } = obstacleRect;
     const r = b.r;
-    // Nearest point on rectangle to blob centre
+    // Nearest point ON (or inside) the rectangle to blob centre
     const nearX = Math.max(left,  Math.min(right,  b.cx));
     const nearY = Math.max(top,   Math.min(bottom, b.cy));
     const dx = b.cx - nearX, dy = b.cy - nearY;
     const dist2 = dx * dx + dy * dy;
     if (dist2 >= r * r) return;   // no overlap
-    const dist = Math.sqrt(dist2) || 0.01;
-    const nx = dx / dist, ny = dy / dist;
-    b.cx = nearX + nx * r;        // push mass centre outside obstacle
-    b.cy = nearY + ny * r;
+
+    let nx, ny;
+    if (dist2 < 0.0001) {
+      // Blob centre is inside the rectangle — find the shortest escape to any edge
+      // and eject along that axis so the blob doesn't get permanently stuck.
+      const toLeft   = b.cx - left;
+      const toRight  = right  - b.cx;
+      const toTop    = b.cy - top;
+      const toBottom = bottom - b.cy;
+      const shortest = Math.min(toLeft, toRight, toTop, toBottom);
+      if      (shortest === toLeft)   { nx = -1; ny =  0; b.cx = left   - r; }
+      else if (shortest === toRight)  { nx =  1; ny =  0; b.cx = right  + r; }
+      else if (shortest === toTop)    { nx =  0; ny = -1; b.cy = top    - r; }
+      else                            { nx =  0; ny =  1; b.cy = bottom + r; }
+    } else {
+      const dist = Math.sqrt(dist2);
+      nx = dx / dist; ny = dy / dist;
+      b.cx = nearX + nx * r;      // push mass centre outside obstacle
+      b.cy = nearY + ny * r;
+    }
+
     const dot = b.vx * nx + b.vy * ny;
     if (dot < 0) {                // only reflect if moving into obstacle
       b.vx -= 2 * dot * nx;
@@ -198,9 +218,11 @@
     const push = (minD - dist) * 0.5;
     a.cx -= nx * push; a.cy -= ny * push;
     b.cx += nx * push; b.cy += ny * push;
-    // Exchange velocity components along collision normal (elastic, equal mass)
+    // Exchange velocity components along collision normal (elastic, equal mass).
+    // nx/ny points FROM a TO b, so dv > 0 means the blobs are approaching —
+    // apply the impulse. dv < 0 means they're already separating — skip.
     const dv = (a.vx - b.vx) * nx + (a.vy - b.vy) * ny;
-    if (dv > 0) return;   // already separating
+    if (dv < 0) return;   // already separating, nothing to do
     a.vx -= dv * nx; a.vy -= dv * ny;
     b.vx += dv * nx; b.vy += dv * ny;
     squashHit(a, -nx, -ny);
@@ -246,10 +268,21 @@
 
   function updateBlobState(b, dt) {
     const spd = Math.hypot(b.vx, b.vy);
-    const squashActive = Math.abs(b.tsx - 1) > 0.005 || Math.abs(b.tsy - 1) > 0.005;
 
-    if (!squashActive) {
-      // Continuous motion stretch: elongate along velocity direction
+    if (b.hitRecovery) {
+      // Recovering from an impact: decay target back toward neutral.
+      // Only exit recovery once the target is essentially at rest (< 0.5% deviation)
+      // so the two modes can never fight each other.
+      const dk = 1 - Math.exp(-PHYSICS.scaleDecaySpeed * dt);
+      b.tsx += (1 - b.tsx) * dk;
+      b.tsy += (1 - b.tsy) * dk;
+      if (Math.abs(b.tsx - 1) < 0.005 && Math.abs(b.tsy - 1) < 0.005) {
+        b.tsx = 1; b.tsy = 1;   // snap cleanly to neutral
+        b.hitRecovery = false;
+      }
+    } else {
+      // Normal travel: set motion-stretch target directly from velocity each frame.
+      // No decay is applied — the target is recalculated fresh every tick.
       const factor = Math.min(spd * 0.0028, PHYSICS.stretchMax);
       b.ang = Math.atan2(b.vy, b.vx);
       b.tsx = 1 + factor;
@@ -260,11 +293,6 @@
     const lk = 1 - Math.exp(-PHYSICS.scaleSnapSpeed * dt);
     b.sx += (b.tsx - b.sx) * lk;
     b.sy += (b.tsy - b.sy) * lk;
-
-    // Decay target scale back to neutral
-    const dk = 1 - Math.exp(-PHYSICS.scaleDecaySpeed * dt);
-    b.tsx += (1 - b.tsx) * dk;
-    b.tsy += (1 - b.tsy) * dk;
 
     // Decay brightness flash back to 1.0
     if (b.brightness > 1.001) {
@@ -313,6 +341,7 @@
       b.vy = Math.sin(a) * BLOBS[i].speed;
       b.sx = b.sy = b.tsx = b.tsy = 1;
       b.brightness = 1;
+      b.hitRecovery = false;
       b.ang = a;
       applyTransform(b);
     });
@@ -382,14 +411,27 @@
     }, PHYSICS.resizeDebounce);
   });
 
+  // ── Visibility — reset lastTs so a hidden→visible transition doesn't
+  //    produce a giant dt spike on the first resumed frame.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') lastTs = null;
+  });
+
   // ── Boot ───────────────────────────────────────────────────────────────────
   // Defer until DOMContentLoaded so element positions are accurate.
+  // The `started` guard prevents a double-init if the event fires unexpectedly.
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => { init(); requestAnimationFrame(tick); });
-  } else {
+  function boot() {
+    if (started) return;
+    started = true;
     init();
     requestAnimationFrame(tick);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
   }
 
 }());
