@@ -75,6 +75,8 @@
     // ── Collision objects ───────────────────────────────────────────────────
     wallBounce:    true,         // bounce off the viewport edges
     cardSelector:  '.card',      // CSS selector for an obstacle rectangle, or null to disable
+    cardBreakpoint: 520,         // disable card collisions when viewport width is ≤ this (px)
+                                 // set to 0 to always collide, or Infinity to always skip
 
     // ── Timing ─────────────────────────────────────────────────────────────
     dtCap:           0.10,   // max timestep (s) — prevents tunneling after tab becomes active
@@ -91,6 +93,13 @@
 
   // ── Internal state ─────────────────────────────────────────────────────────
   let W = 0, H = 0, obstacleRect = null, lastTs = null, started = false;
+
+  /** Resolves obstacleRect, honouring cardBreakpoint. */
+  function resolveObstacleRect() {
+    if (!PHYSICS.cardSelector) return null;
+    if (window.innerWidth <= PHYSICS.cardBreakpoint) return null;
+    return document.querySelector(PHYSICS.cardSelector)?.getBoundingClientRect() ?? null;
+  }
 
   const pointer = { x: -9999, y: -9999, active: false };
 
@@ -347,9 +356,7 @@
     });
 
     // Cache obstacle rect once at init (also updated on resize)
-    obstacleRect = PHYSICS.cardSelector
-      ? document.querySelector(PHYSICS.cardSelector)?.getBoundingClientRect() ?? null
-      : null;
+    obstacleRect = resolveObstacleRect();
   }
 
   // ── Animation loop ─────────────────────────────────────────────────────────
@@ -405,9 +412,7 @@
     resizeTimer = setTimeout(() => {
       W = window.innerWidth;
       H = window.innerHeight;
-      obstacleRect = PHYSICS.cardSelector
-        ? document.querySelector(PHYSICS.cardSelector)?.getBoundingClientRect() ?? null
-        : null;
+      obstacleRect = resolveObstacleRect();
     }, PHYSICS.resizeDebounce);
   });
 
